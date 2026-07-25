@@ -10,7 +10,7 @@ import {
 import { specToSettingsPatch } from "@/lib/vehicles/apply";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { CollapsibleCard } from "./collapsible-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -94,27 +94,23 @@ export function VehicleCard({ settings, onChangeSettings, selection, onChangeSel
   const trims = selection ? getTrims(selection.brandId, selection.modelId, selection.fuelType) : [];
 
   return (
-    <Card>
-      <CardHeader className="pb-4">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary/10 text-primary">
-                <Car className="h-4 w-4" />
-              </span>
-              {t("vehicle.title")}
-            </CardTitle>
-            <CardDescription className="mt-1">{t("vehicle.desc")}</CardDescription>
-          </div>
-          {selection ? (
-            <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => onChangeSelection(null)}>
-              {t("vehicle.manual")}
-            </Button>
-          ) : null}
-        </div>
-      </CardHeader>
-
-      <CardContent className="space-y-5">
+    <CollapsibleCard
+      icon={Car}
+      title={t("vehicle.title")}
+      description={t("vehicle.desc")}
+      storageKey="bdpc.ui.vehicle"
+      sectionId="vehicle"
+      defaultOpen={false}
+      summary={fuelLabel(settings.fuelType)}
+      right={
+        selection ? (
+          <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => onChangeSelection(null)}>
+            {t("vehicle.manual")}
+          </Button>
+        ) : null
+      }
+    >
+      <div className="space-y-5">
         <div className="space-y-1.5">
           <Label>{t("vehicle.vehicleType")}</Label>
           <div className="grid grid-cols-2 gap-2">
@@ -298,7 +294,7 @@ export function VehicleCard({ settings, onChangeSettings, selection, onChangeSel
           <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
           <p>{t("vehicle.note")}</p>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </CollapsibleCard>
   );
 }

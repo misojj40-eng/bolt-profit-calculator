@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Clock, Route, Gauge, Flag, Zap } from "lucide-react";
+import { Clock, Route, Gauge, Flag, Zap, PieChart } from "lucide-react";
 import type { CostSettings, ShiftInputs } from "@/lib/types";
 import type { VehicleSelection, VehicleType } from "@/lib/vehicles";
 import type { TripEntry } from "@/lib/trips";
@@ -31,8 +31,7 @@ import { TrackerCard } from "./tracker-card";
 import { GoalCard } from "./goal-card";
 import { InsightsCard } from "./insights-card";
 import { DataCard } from "./data-card";
-import { HotspotCard } from "./hotspot-card";
-import type { DriveMode } from "@/lib/hotspots/engine";
+import { CollapsibleCard } from "./collapsible-card";
 import { BottomNav } from "./bottom-nav";
 
 const STORAGE_KEYS = {
@@ -43,8 +42,6 @@ const STORAGE_KEYS = {
   trips: "bdpc.trips.v1",
   vehicleType: "bdpc.vehicleType.v1",
   goal: "bdpc.goal.v1",
-  city: "bdpc.city.v1",
-  driveMode: "bdpc.driveMode.v1",
 } as const;
 
 export function Dashboard() {
@@ -58,8 +55,6 @@ export function Dashboard() {
   const [vehicleType, setVehicleType] = useLocalStorage<VehicleType>(STORAGE_KEYS.vehicleType, "car");
   const [goal, setGoal] = useLocalStorage<Goal>(STORAGE_KEYS.goal, DEFAULT_GOAL);
   const patchGoal = (patch: Partial<Goal>) => setGoal((g) => ({ ...g, ...patch }));
-  const [cityId, setCityId] = useLocalStorage<string>(STORAGE_KEYS.city, "bangkok");
-  const [driveMode, setDriveMode] = useLocalStorage<DriveMode>(STORAGE_KEYS.driveMode, "rides");
 
   const result = React.useMemo(() => calculateProfit(inputs, settings), [inputs, settings]);
   const symbol = (CURRENCIES[currency] ?? CURRENCIES[DEFAULT_CURRENCY]).symbol;
@@ -153,37 +148,16 @@ export function Dashboard() {
             </StatCard>
           </div>
 
-          <GoalCard
-            goal={goal}
-            onChangeGoal={patchGoal}
-            trips={trips}
-            todayNetLive={result.netProfit}
-            currency={currency}
-            symbol={symbol}
-          />
-        </section>
-
-        <section id="hotspots" className="scroll-mt-20">
-          <HotspotCard
-            cityId={cityId}
-            onChangeCity={setCityId}
-            mode={driveMode}
-            onChangeMode={setDriveMode}
-          />
-        </section>
-
-        <section id="vehicle" className="scroll-mt-20 grid gap-6 lg:grid-cols-2">
-          <VehicleCard
-            settings={settings}
-            onChangeSettings={patchSettings}
-            selection={vehicle}
-            onChangeSelection={setVehicle}
-            vehicleType={vehicleType}
-            onChangeVehicleType={changeVehicleType}
-            symbol={symbol}
-          />
-          <div id="shift" className="scroll-mt-20">
+          <div className="grid gap-6 lg:grid-cols-2">
             <ShiftInputsCard value={inputs} onChange={patchInputs} symbol={symbol} />
+            <GoalCard
+              goal={goal}
+              onChangeGoal={patchGoal}
+              trips={trips}
+              todayNetLive={result.netProfit}
+              currency={currency}
+              symbol={symbol}
+            />
           </div>
         </section>
 
@@ -199,12 +173,36 @@ export function Dashboard() {
           />
         </section>
 
-        <section id="analytics" className="scroll-mt-20 grid gap-6 lg:grid-cols-2">
-          <ExpenseBreakdown result={result} currency={currency} fuelType={settings.fuelType} />
-          <MonthlyProjection result={result} currency={currency} workingDays={settings.workingDaysPerMonth} />
-          <div className="lg:col-span-2">
-            <InsightsCard trips={trips} currency={currency} />
-          </div>
+        <section id="analytics" className="scroll-mt-20">
+          <CollapsibleCard
+            bare
+            icon={PieChart}
+            title={t("nav.analytics")}
+            description={t("insights.desc")}
+            storageKey="bdpc.ui.analytics"
+            sectionId="analytics"
+            defaultOpen={false}
+          >
+            <div className="grid gap-6 lg:grid-cols-2">
+              <ExpenseBreakdown result={result} currency={currency} fuelType={settings.fuelType} />
+              <MonthlyProjection result={result} currency={currency} workingDays={settings.workingDaysPerMonth} />
+              <div className="lg:col-span-2">
+                <InsightsCard trips={trips} currency={currency} />
+              </div>
+            </div>
+          </CollapsibleCard>
+        </section>
+
+        <section id="vehicle" className="scroll-mt-20">
+          <VehicleCard
+            settings={settings}
+            onChangeSettings={patchSettings}
+            selection={vehicle}
+            onChangeSelection={setVehicle}
+            vehicleType={vehicleType}
+            onChangeVehicleType={changeVehicleType}
+            symbol={symbol}
+          />
         </section>
 
         <section id="costs" className="scroll-mt-20">

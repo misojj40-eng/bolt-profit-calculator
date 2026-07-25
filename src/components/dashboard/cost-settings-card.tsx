@@ -4,7 +4,7 @@ import * as React from "react";
 import { Wrench, ShieldCheck, RotateCcw } from "lucide-react";
 import type { CostSettings } from "@/lib/types";
 import { DEFAULT_SETTINGS } from "@/lib/calculator";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { CollapsibleCard } from "./collapsible-card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useI18n } from "@/lib/i18n";
@@ -29,24 +29,20 @@ function SectionTitle({ icon: Icon, children }: { icon: React.ElementType; child
 export function CostSettingsCard({ value, onChange, onReset, symbol }: Props) {
   const { t } = useI18n();
   return (
-    <Card>
-      <CardHeader className="pb-4">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary/10 text-primary">
-                <Wrench className="h-4 w-4" />
-              </span>
-              {t("costs.title")}
-            </CardTitle>
-            <CardDescription className="mt-1">{t("costs.desc")}</CardDescription>
-          </div>
-          <Button variant="ghost" size="sm" onClick={onReset} className="text-muted-foreground">
-            <RotateCcw className="h-4 w-4" /> {t("costs.reset")}
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
+    <CollapsibleCard
+      icon={Wrench}
+      title={t("costs.title")}
+      description={t("costs.desc")}
+      storageKey="bdpc.ui.costs"
+      sectionId="costs"
+      defaultOpen={false}
+      right={
+        <Button variant="ghost" size="sm" onClick={onReset} className="text-muted-foreground">
+          <RotateCcw className="h-4 w-4" /> {t("costs.reset")}
+        </Button>
+      }
+    >
+      <div className="space-y-6">
         <div className="space-y-4">
           <SectionTitle icon={Wrench}>{t("costs.wear")}</SectionTitle>
           <div className="grid grid-cols-2 gap-4">
@@ -69,8 +65,8 @@ export function CostSettingsCard({ value, onChange, onReset, symbol }: Props) {
             <NumberField id="days" label={t("costs.workingDays")} suffix={t("unit.perMonth")} step={1} min={1} value={value.workingDaysPerMonth} onChange={(n) => onChange({ workingDaysPerMonth: n })} className="col-span-2" />
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </CollapsibleCard>
   );
 }
 

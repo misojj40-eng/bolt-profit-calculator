@@ -1,15 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { LayoutDashboard, Navigation, NotebookPen, Wrench, PieChart } from "lucide-react";
+import { LayoutDashboard, NotebookPen, PieChart, Car, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 
 const ITEMS = [
   { id: "overview", icon: LayoutDashboard, key: "nav.overview" },
-  { id: "hotspots", icon: Navigation, key: "nav.hotspots" },
   { id: "tracker", icon: NotebookPen, key: "nav.tracker" },
   { id: "analytics", icon: PieChart, key: "nav.analytics" },
+  { id: "vehicle", icon: Car, key: "nav.vehicle" },
   { id: "costs", icon: Wrench, key: "nav.costs" },
 ] as const;
 
@@ -34,7 +34,10 @@ export function BottomNav() {
   }, []);
 
   const go = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.dispatchEvent(new CustomEvent("bdpc:open-section", { detail: id }));
+    requestAnimationFrame(() =>
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })
+    );
   };
 
   return (

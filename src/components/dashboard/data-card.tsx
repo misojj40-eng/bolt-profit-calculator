@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Database, Download, Upload, Check, AlertTriangle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { CollapsibleCard } from "./collapsible-card";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 
@@ -70,17 +70,14 @@ export function DataCard() {
   };
 
   return (
-    <Card>
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary/10 text-primary">
-            <Database className="h-4 w-4" />
-          </span>
-          {t("data.title")}
-        </CardTitle>
-        <CardDescription className="mt-1">{t("data.desc")}</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3">
+    <CollapsibleCard
+      icon={Database}
+      title={t("data.title")}
+      description={t("data.desc")}
+      storageKey="bdpc.ui.data"
+      defaultOpen={false}
+    >
+      <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
           <Button variant="outline" className="h-11" onClick={exportData}>
             <Download className="h-4 w-4" /> {t("data.export")}
@@ -100,7 +97,7 @@ export function DataCard() {
             <AlertTriangle className="h-4 w-4" /> {t("data.importError")}
           </p>
         ) : null}
-      </CardContent>
-    </Card>
+      </div>
+    </CollapsibleCard>
   );
 }
