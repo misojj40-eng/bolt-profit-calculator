@@ -1,0 +1,68 @@
+"use client";
+
+import * as React from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+
+type Props = {
+  id: string;
+  label: string;
+  value: number;
+  onChange: (n: number) => void;
+  prefix?: string;
+  suffix?: string;
+  step?: number;
+  min?: number;
+  hint?: string;
+  className?: string;
+};
+
+export function NumberField({
+  id,
+  label,
+  value,
+  onChange,
+  prefix,
+  suffix,
+  step = 1,
+  min = 0,
+  hint,
+  className,
+}: Props) {
+  return (
+    <div className={cn("space-y-1.5", className)}>
+      {label || hint ? (
+        <Label htmlFor={id} className="flex items-center justify-between">
+          <span>{label}</span>
+          {hint ? <span className="text-xs font-normal text-muted-foreground">{hint}</span> : null}
+        </Label>
+      ) : null}
+      <div className="relative">
+        {prefix ? (
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+            {prefix}
+          </span>
+        ) : null}
+        <Input
+          id={id}
+          type="number"
+          inputMode="decimal"
+          step={step}
+          min={min}
+          value={Number.isFinite(value) ? value : ""}
+          onChange={(e) => {
+            const n = parseFloat(e.target.value);
+            onChange(Number.isFinite(n) ? n : 0);
+          }}
+          className={cn(prefix && "pl-7", suffix && "pr-14")}
+        />
+        {suffix ? (
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+            {suffix}
+          </span>
+        ) : null}
+      </div>
+    </div>
+  );
+}
