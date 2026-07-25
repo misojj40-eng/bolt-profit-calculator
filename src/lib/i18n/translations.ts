@@ -45,6 +45,9 @@ export const translations: Record<Lang, Dict> = {
     "shift.distance": "Distance driven",
     "shift.hours": "Hours worked",
 
+    "vehicle.vehicleType": "Vehicle type",
+    "vehicle.car": "Car",
+    "vehicle.motorbike": "Motorbike",
     "vehicle.title": "Your vehicle",
     "vehicle.desc": "Pick your car to auto-load its factory fuel or energy figures.",
     "vehicle.manual": "Manual",
@@ -175,6 +178,9 @@ export const translations: Record<Lang, Dict> = {
     "shift.distance": "ระยะทางที่ขับ",
     "shift.hours": "ชั่วโมงทำงาน",
 
+    "vehicle.vehicleType": "ประเภทยานพาหนะ",
+    "vehicle.car": "รถยนต์",
+    "vehicle.motorbike": "มอเตอร์ไซค์",
     "vehicle.title": "รถของคุณ",
     "vehicle.desc": "เลือกรถเพื่อโหลดอัตราสิ้นเปลืองน้ำมันหรือพลังงานจากโรงงานอัตโนมัติ",
     "vehicle.manual": "กรอกเอง",

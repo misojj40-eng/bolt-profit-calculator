@@ -7,7 +7,7 @@ export const mitsubishi: VehicleBrand = {
     {
       id: "attrage",
       name: "Attrage",
-      years: [2025, 2024, 2023, 2022, 2021, 2020],
+      years: [2026, 2025, 2024, 2023, 2022, 2021, 2020],
       trims: [
         { id: "attrage-1-2", name: "1.2 CVT", fuelType: "petrol", spec: { fuelConsumption: 5.0 } },
       ],
@@ -15,7 +15,7 @@ export const mitsubishi: VehicleBrand = {
     {
       id: "mirage",
       name: "Mirage",
-      years: [2025, 2024, 2023, 2022, 2021, 2020],
+      years: [2026, 2025, 2024, 2023, 2022, 2021, 2020],
       trims: [
         { id: "mirage-1-2", name: "1.2 CVT", fuelType: "petrol", spec: { fuelConsumption: 4.9 } },
       ],
@@ -23,7 +23,7 @@ export const mitsubishi: VehicleBrand = {
     {
       id: "triton",
       name: "Triton",
-      years: [2025, 2024, 2023, 2022],
+      years: [2026, 2025, 2024, 2023, 2022],
       trims: [
         { id: "triton-2-4", name: "2.4 Diesel", fuelType: "diesel", spec: { fuelConsumption: 7.4 } },
       ],
@@ -31,7 +31,7 @@ export const mitsubishi: VehicleBrand = {
     {
       id: "outlander-phev",
       name: "Outlander PHEV",
-      years: [2025, 2024, 2023],
+      years: [2026, 2025, 2024, 2023],
       trims: [
         {
           id: "outlander-phev",

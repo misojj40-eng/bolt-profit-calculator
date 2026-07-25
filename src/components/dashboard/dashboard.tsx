@@ -3,10 +3,10 @@
 import * as React from "react";
 import { Clock, Route, Gauge, Flag, Zap } from "lucide-react";
 import type { CostSettings, ShiftInputs } from "@/lib/types";
-import type { VehicleSelection } from "@/lib/vehicles";
+import type { VehicleSelection, VehicleType } from "@/lib/vehicles";
 import type { TripEntry } from "@/lib/trips";
 import { makeTripId, todayISO } from "@/lib/trips";
-import { DEFAULT_INPUTS, DEFAULT_SETTINGS, calculateProfit } from "@/lib/calculator";
+import { DEFAULT_INPUTS, DEFAULT_SETTINGS, calculateProfit, defaultSettingsFor } from "@/lib/calculator";
 import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/currency";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useI18n } from "@/lib/i18n";
@@ -34,6 +34,7 @@ const STORAGE_KEYS = {
   currency: "bdpc.currency.v1",
   vehicle: "bdpc.vehicle.v1",
   trips: "bdpc.trips.v1",
+  vehicleType: "bdpc.vehicleType.v1",
 } as const;
 
 export function Dashboard() {
@@ -44,12 +45,31 @@ export function Dashboard() {
   const [vehicle, setVehicle] = useLocalStorage<VehicleSelection | null>(STORAGE_KEYS.vehicle, null);
   const [trips, setTrips] = useLocalStorage<TripEntry[]>(STORAGE_KEYS.trips, []);
   const [logDate, setLogDate] = React.useState<string>(() => todayISO());
+  const [vehicleType, setVehicleType] = useLocalStorage<VehicleType>(STORAGE_KEYS.vehicleType, "car");
 
   const result = React.useMemo(() => calculateProfit(inputs, settings), [inputs, settings]);
   const symbol = (CURRENCIES[currency] ?? CURRENCIES[DEFAULT_CURRENCY]).symbol;
 
   const patchInputs = (patch: Partial<ShiftInputs>) => setInputs((p) => ({ ...p, ...patch }));
   const patchSettings = (patch: Partial<CostSettings>) => setSettings((p) => ({ ...p, ...patch }));
+
+  const changeVehicleType = (vt: VehicleType) => {
+    setVehicleType(vt);
+    setVehicle(null);
+    const d = defaultSettingsFor(vt);
+    // Reset the vehicle-class-specific figures; keep the driver's own pricing, tax and schedule.
+    patchSettings({
+      fuelType: d.fuelType,
+      fuelConsumption: d.fuelConsumption,
+      energyConsumption: d.energyConsumption,
+      batteryKwh: d.batteryKwh,
+      depreciationPerKm: d.depreciationPerKm,
+      maintenancePerKm: d.maintenancePerKm,
+      tyresSetCost: d.tyresSetCost,
+      tyresLifespanKm: d.tyresLifespanKm,
+      insuranceMonthly: d.insuranceMonthly,
+    });
+  };
 
   const logDrive = () => {
     const entry: TripEntry = {
@@ -126,6 +146,8 @@ export function Dashboard() {
             onChangeSettings={patchSettings}
             selection={vehicle}
             onChangeSelection={setVehicle}
+            vehicleType={vehicleType}
+            onChangeVehicleType={changeVehicleType}
             symbol={symbol}
           />
           <div id="shift" className="scroll-mt-20">
@@ -151,7 +173,7 @@ export function Dashboard() {
         </section>
 
         <section id="costs" className="scroll-mt-20">
-          <CostSettingsCard value={settings} onChange={patchSettings} onReset={() => setSettings(DEFAULT_SETTINGS)} symbol={symbol} />
+          <CostSettingsCard value={settings} onChange={patchSettings} onReset={() => setSettings(defaultSettingsFor(vehicleType))} symbol={symbol} />
         </section>
 
         <footer className="pt-2 text-center text-xs text-muted-foreground">{t("footer.note")}</footer>

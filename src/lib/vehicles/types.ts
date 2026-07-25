@@ -1,5 +1,7 @@
 export type FuelType = "petrol" | "diesel" | "hybrid" | "phev" | "ev";
 
+export type VehicleType = "car" | "motorbike";
+
 export type ChargingLocation = "home" | "public";
 
 export const FUEL_LABELS: Record<FuelType, string> = {
@@ -36,6 +38,8 @@ export type VehicleTrim = {
 export type VehicleModel = {
   id: string;
   name: string;
+  /** Vehicle class. Defaults to "car" when omitted. */
+  type?: VehicleType;
   /** Years the spec below is a reasonable estimate for (newest first). */
   years: number[];
   trims: VehicleTrim[];

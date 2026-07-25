@@ -19,17 +19,14 @@ type Props = {
 };
 
 export function NumberField({
-  id,
-  label,
-  value,
-  onChange,
-  prefix,
-  suffix,
-  step = 1,
-  min = 0,
-  hint,
-  className,
+  id, label, value, onChange, prefix, suffix, step = 1, min = 0, hint, className,
 }: Props) {
+  const [focused, setFocused] = React.useState(false);
+  const [draft, setDraft] = React.useState<string>("");
+
+  // While the user is editing we show their raw draft; otherwise mirror the value.
+  const display = focused ? draft : value === 0 && !focused ? "" : String(value);
+
   return (
     <div className={cn("space-y-1.5", className)}>
       {label || hint ? (
@@ -46,16 +43,29 @@ export function NumberField({
         ) : null}
         <Input
           id={id}
-          type="number"
+          type="text"
           inputMode="decimal"
           step={step}
           min={min}
-          value={Number.isFinite(value) ? value : ""}
-          onChange={(e) => {
-            const n = parseFloat(e.target.value);
-            onChange(Number.isFinite(n) ? n : 0);
+          placeholder="0"
+          value={display}
+          onFocus={(e) => {
+            setDraft(value === 0 ? "" : String(value));
+            setFocused(true);
+            requestAnimationFrame(() => e.target.select());
           }}
-          className={cn(prefix && "pl-7", suffix && "pr-14")}
+          onBlur={() => setFocused(false)}
+          onChange={(e) => {
+            const raw = e.target.value.replace(/[^0-9.]/g, "");
+            setDraft(raw);
+            if (raw === "" || raw === ".") {
+              onChange(0);
+              return;
+            }
+            const n = parseFloat(raw);
+            if (Number.isFinite(n)) onChange(n);
+          }}
+          className={cn(prefix && "pl-7", suffix && "pr-16")}
         />
         {suffix ? (
           <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">

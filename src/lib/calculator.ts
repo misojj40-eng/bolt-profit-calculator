@@ -1,5 +1,5 @@
 import type { CostSettings, ProfitResult, ShiftInputs, CostLine } from "./types";
-import { usesElectricity } from "./vehicles/types";
+import { usesElectricity, type VehicleType } from "./vehicles/types";
 
 export const DEFAULT_INPUTS: ShiftInputs = {
   earnings: 1800,
@@ -36,6 +36,25 @@ export const DEFAULT_SETTINGS: CostSettings = {
   taxRatePercent: 5,
   workingDaysPerMonth: 24,
 };
+
+/** Cost defaults for a motorbike — lighter on fuel, tyres, depreciation and insurance. */
+export const MOTORBIKE_SETTINGS: CostSettings = {
+  ...DEFAULT_SETTINGS,
+  fuelType: "petrol",
+  fuelConsumption: 2.0, // L / 100km
+  energyConsumption: 4, // kWh / 100km (electric bikes)
+  batteryKwh: 1.5,
+  depreciationPerKm: 0.4,
+  maintenancePerKm: 0.35,
+  tyresSetCost: 1600,
+  tyresLifespanKm: 20000,
+  insuranceMonthly: 300,
+};
+
+/** Full default settings for a vehicle class. */
+export function defaultSettingsFor(type: VehicleType): CostSettings {
+  return type === "motorbike" ? MOTORBIKE_SETTINGS : DEFAULT_SETTINGS;
+}
 
 export const COST_COLORS: Record<string, string> = {
   fuel: "hsl(158 84% 42%)",

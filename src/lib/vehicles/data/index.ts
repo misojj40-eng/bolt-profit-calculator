@@ -10,6 +10,8 @@ import { mg } from "./mg";
 import { byd } from "./byd";
 import { tesla } from "./tesla";
 import { gwm } from "./gwm";
+import { yamaha } from "./yamaha";
+import { gpx } from "./gpx";
 
 /**
  * The vehicle database. To add a vehicle, edit the relevant brand file (or add a
@@ -28,4 +30,6 @@ export const VEHICLE_DB: VehicleBrand[] = [
   byd,
   tesla,
   gwm,
+  yamaha,
+  gpx,
 ].sort((a, b) => a.name.localeCompare(b.name));

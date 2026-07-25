@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Car, Info, RotateCcw, Zap, Fuel, Home, MapPin, BatteryCharging } from "lucide-react";
+import { Car, Bike, Info, RotateCcw, Zap, Fuel, Home, MapPin, BatteryCharging } from "lucide-react";
 import type { CostSettings } from "@/lib/types";
-import type { FuelType, VehicleSelection } from "@/lib/vehicles";
+import type { FuelType, VehicleSelection, VehicleType } from "@/lib/vehicles";
 import {
   getBrands, getModels, getYears, getFuelTypes, getTrims, getTrim, resolveSelection,
 } from "@/lib/vehicles";
@@ -24,14 +24,16 @@ type Props = {
   onChangeSettings: (patch: Partial<CostSettings>) => void;
   selection: VehicleSelection | null;
   onChangeSelection: (sel: VehicleSelection | null) => void;
+  vehicleType: VehicleType;
+  onChangeVehicleType: (type: VehicleType) => void;
   symbol: string;
 };
 
-export function VehicleCard({ settings, onChangeSettings, selection, onChangeSelection, symbol }: Props) {
+export function VehicleCard({ settings, onChangeSettings, selection, onChangeSelection, vehicleType, onChangeVehicleType, symbol }: Props) {
   const { t, num } = useI18n();
   const fuelLabel = (f: FuelType) => t(`fuel.${f}`);
 
-  const brands = getBrands();
+  const brands = getBrands(vehicleType);
   const trim = resolveSelection(selection);
   const isEv = settings.fuelType === "ev";
   const isPhev = settings.fuelType === "phev";
@@ -49,7 +51,7 @@ export function VehicleCard({ settings, onChangeSettings, selection, onChangeSel
   };
 
   const onBrand = (brandId: string) => {
-    const model = getModels(brandId)[0];
+    const model = getModels(brandId, vehicleType)[0];
     if (!model) {
       onChangeSelection({ brandId, modelId: "", year: 0, fuelType: settings.fuelType, trimId: "" });
       return;
@@ -86,7 +88,7 @@ export function VehicleCard({ settings, onChangeSettings, selection, onChangeSel
   const resetFuel = () => factoryFuel != null && onChangeSettings({ fuelConsumption: factoryFuel });
   const resetEnergy = () => factoryEnergy != null && onChangeSettings({ energyConsumption: factoryEnergy });
 
-  const models = selection ? getModels(selection.brandId) : [];
+  const models = selection ? getModels(selection.brandId, vehicleType) : [];
   const years = selection ? getYears(selection.brandId, selection.modelId) : [];
   const fuelTypes = selection ? getFuelTypes(selection.brandId, selection.modelId) : [];
   const trims = selection ? getTrims(selection.brandId, selection.modelId, selection.fuelType) : [];
@@ -113,6 +115,31 @@ export function VehicleCard({ settings, onChangeSettings, selection, onChangeSel
       </CardHeader>
 
       <CardContent className="space-y-5">
+        <div className="space-y-1.5">
+          <Label>{t("vehicle.vehicleType")}</Label>
+          <div className="grid grid-cols-2 gap-2">
+            {(["car", "motorbike"] as const).map((vt) => {
+              const active = vehicleType === vt;
+              const Icon = vt === "car" ? Car : Bike;
+              return (
+                <button
+                  key={vt}
+                  type="button"
+                  onClick={() => onChangeVehicleType(vt)}
+                  aria-pressed={active}
+                  className={cn(
+                    "flex min-h-11 items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors",
+                    active ? "border-primary bg-primary/10 text-primary" : "border-input text-muted-foreground hover:bg-accent"
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  {vt === "car" ? t("vehicle.car") : t("vehicle.motorbike")}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 gap-3 sm:gap-4">
           <div className="space-y-1.5">
             <Label>{t("vehicle.brand")}</Label>

@@ -4,26 +4,30 @@ import type {
   VehicleModel,
   VehicleSelection,
   VehicleTrim,
+  VehicleType,
 } from "./types";
 import { VEHICLE_DB } from "./data";
 
 export * from "./types";
 export { VEHICLE_DB } from "./data";
 
-export function getBrands(): VehicleBrand[] {
-  return VEHICLE_DB;
+const modelType = (m: VehicleModel): VehicleType => m.type ?? "car";
+
+/** Brands that have at least one model of the given type (default "car"). */
+export function getBrands(type: VehicleType = "car"): VehicleBrand[] {
+  return VEHICLE_DB.filter((b) => b.models.some((m) => modelType(m) === type));
 }
 
 export function getBrand(brandId: string): VehicleBrand | undefined {
   return VEHICLE_DB.find((b) => b.id === brandId);
 }
 
-export function getModels(brandId: string): VehicleModel[] {
-  return getBrand(brandId)?.models ?? [];
+export function getModels(brandId: string, type: VehicleType = "car"): VehicleModel[] {
+  return (getBrand(brandId)?.models ?? []).filter((m) => modelType(m) === type);
 }
 
 export function getModel(brandId: string, modelId: string): VehicleModel | undefined {
-  return getModels(brandId).find((m) => m.id === modelId);
+  return (getBrand(brandId)?.models ?? []).find((m) => m.id === modelId);
 }
 
 export function getYears(brandId: string, modelId: string): number[] {
