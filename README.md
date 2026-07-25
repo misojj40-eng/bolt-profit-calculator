@@ -8,6 +8,10 @@ per kilometre, plus a monthly projection.
 Built as a clean, premium **fintech dashboard**: mobile-first, responsive, dark-mode by
 default, smooth animations, bilingual (Thai / English), and PWA-ready.
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fmisojj40-eng%2Fbolt-profit-calculator)
+
+> One-click deploy of this repo to Vercel. Full step-by-step instructions are in [`DEPLOY.md`](./DEPLOY.md).
+
 ## Tech stack
 
 - **Next.js 14** (App Router) + **React 18**

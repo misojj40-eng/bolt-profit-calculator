@@ -4,6 +4,8 @@ import * as React from "react";
 import { Clock, Route, Gauge, Flag, Zap } from "lucide-react";
 import type { CostSettings, ShiftInputs } from "@/lib/types";
 import type { VehicleSelection } from "@/lib/vehicles";
+import type { TripEntry } from "@/lib/trips";
+import { makeTripId, todayISO } from "@/lib/trips";
 import { DEFAULT_INPUTS, DEFAULT_SETTINGS, calculateProfit } from "@/lib/calculator";
 import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/currency";
 import { useLocalStorage } from "@/hooks/use-local-storage";
@@ -23,6 +25,7 @@ import { StatCard } from "./stat-card";
 import { AnimatedNumber } from "./animated-number";
 import { ExpenseBreakdown } from "./expense-breakdown";
 import { MonthlyProjection } from "./monthly-projection";
+import { TrackerCard } from "./tracker-card";
 import { BottomNav } from "./bottom-nav";
 
 const STORAGE_KEYS = {
@@ -30,6 +33,7 @@ const STORAGE_KEYS = {
   settings: "bdpc.settings.v2",
   currency: "bdpc.currency.v1",
   vehicle: "bdpc.vehicle.v1",
+  trips: "bdpc.trips.v1",
 } as const;
 
 export function Dashboard() {
@@ -38,12 +42,31 @@ export function Dashboard() {
   const [settings, setSettings] = useLocalStorage<CostSettings>(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
   const [currency, setCurrency] = useLocalStorage<string>(STORAGE_KEYS.currency, DEFAULT_CURRENCY);
   const [vehicle, setVehicle] = useLocalStorage<VehicleSelection | null>(STORAGE_KEYS.vehicle, null);
+  const [trips, setTrips] = useLocalStorage<TripEntry[]>(STORAGE_KEYS.trips, []);
+  const [logDate, setLogDate] = React.useState<string>(() => todayISO());
 
   const result = React.useMemo(() => calculateProfit(inputs, settings), [inputs, settings]);
   const symbol = (CURRENCIES[currency] ?? CURRENCIES[DEFAULT_CURRENCY]).symbol;
 
   const patchInputs = (patch: Partial<ShiftInputs>) => setInputs((p) => ({ ...p, ...patch }));
   const patchSettings = (patch: Partial<CostSettings>) => setSettings((p) => ({ ...p, ...patch }));
+
+  const logDrive = () => {
+    const entry: TripEntry = {
+      id: makeTripId(),
+      date: logDate || todayISO(),
+      earnings: result.earnings,
+      distanceKm: inputs.distanceKm,
+      hours: inputs.hours,
+      netProfit: result.netProfit,
+      totalCosts: result.totalCosts,
+      fuelType: settings.fuelType,
+      currency,
+    };
+    setTrips((prev) => [entry, ...prev.filter((t) => t.date !== entry.date)]);
+  };
+  const deleteTrip = (id: string) => setTrips((prev) => prev.filter((t) => t.id !== id));
+  const clearTrips = () => setTrips([]);
 
   return (
     <div className="min-h-screen bottom-nav-space md:pb-0">
@@ -108,6 +131,18 @@ export function Dashboard() {
           <div id="shift" className="scroll-mt-20">
             <ShiftInputsCard value={inputs} onChange={patchInputs} symbol={symbol} />
           </div>
+        </section>
+
+        <section id="tracker" className="scroll-mt-20">
+          <TrackerCard
+            trips={trips}
+            currency={currency}
+            logDate={logDate}
+            onChangeDate={setLogDate}
+            onLog={logDrive}
+            onDelete={deleteTrip}
+            onClear={clearTrips}
+          />
         </section>
 
         <section id="analytics" className="scroll-mt-20 grid gap-6 lg:grid-cols-2">

@@ -17,6 +17,7 @@ type I18nValue = {
   t: (key: string, vars?: Vars) => string;
   money: (value: number, currencyCode?: string, decimals?: number) => string;
   num: (value: number, decimals?: number) => string;
+  dateShort: (iso: string) => string;
 };
 
 const I18nContext = React.createContext<I18nValue | null>(null);
@@ -80,7 +81,16 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
         maximumFractionDigits: decimals,
       }).format(safe);
     };
-    return { lang, setLang, t, money, num };
+    const dateShort = (iso: string) => {
+      const d = new Date(`${iso}T00:00:00`);
+      if (Number.isNaN(d.getTime())) return iso;
+      return new Intl.DateTimeFormat(locale, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }).format(d);
+    };
+    return { lang, setLang, t, money, num, dateShort };
   }, [lang, setLang]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
