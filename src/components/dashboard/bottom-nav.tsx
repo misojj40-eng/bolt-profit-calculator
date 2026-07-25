@@ -1,16 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { LayoutDashboard, Car, NotebookPen, Wrench, PieChart } from "lucide-react";
+import { LayoutDashboard, Navigation, NotebookPen, Wrench, PieChart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 
 const ITEMS = [
   { id: "overview", icon: LayoutDashboard, key: "nav.overview" },
-  { id: "vehicle", icon: Car, key: "nav.vehicle" },
+  { id: "hotspots", icon: Navigation, key: "nav.hotspots" },
   { id: "tracker", icon: NotebookPen, key: "nav.tracker" },
-  { id: "costs", icon: Wrench, key: "nav.costs" },
   { id: "analytics", icon: PieChart, key: "nav.analytics" },
+  { id: "costs", icon: Wrench, key: "nav.costs" },
 ] as const;
 
 export function BottomNav() {

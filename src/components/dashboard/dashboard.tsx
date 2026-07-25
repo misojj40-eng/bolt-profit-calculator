@@ -5,6 +5,8 @@ import { Clock, Route, Gauge, Flag, Zap } from "lucide-react";
 import type { CostSettings, ShiftInputs } from "@/lib/types";
 import type { VehicleSelection, VehicleType } from "@/lib/vehicles";
 import type { TripEntry } from "@/lib/trips";
+import type { Goal } from "@/lib/goals";
+import { DEFAULT_GOAL } from "@/lib/goals";
 import { makeTripId, todayISO } from "@/lib/trips";
 import { DEFAULT_INPUTS, DEFAULT_SETTINGS, calculateProfit, defaultSettingsFor } from "@/lib/calculator";
 import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/currency";
@@ -26,6 +28,11 @@ import { AnimatedNumber } from "./animated-number";
 import { ExpenseBreakdown } from "./expense-breakdown";
 import { MonthlyProjection } from "./monthly-projection";
 import { TrackerCard } from "./tracker-card";
+import { GoalCard } from "./goal-card";
+import { InsightsCard } from "./insights-card";
+import { DataCard } from "./data-card";
+import { HotspotCard } from "./hotspot-card";
+import type { DriveMode } from "@/lib/hotspots/engine";
 import { BottomNav } from "./bottom-nav";
 
 const STORAGE_KEYS = {
@@ -35,6 +42,9 @@ const STORAGE_KEYS = {
   vehicle: "bdpc.vehicle.v1",
   trips: "bdpc.trips.v1",
   vehicleType: "bdpc.vehicleType.v1",
+  goal: "bdpc.goal.v1",
+  city: "bdpc.city.v1",
+  driveMode: "bdpc.driveMode.v1",
 } as const;
 
 export function Dashboard() {
@@ -46,6 +56,10 @@ export function Dashboard() {
   const [trips, setTrips] = useLocalStorage<TripEntry[]>(STORAGE_KEYS.trips, []);
   const [logDate, setLogDate] = React.useState<string>(() => todayISO());
   const [vehicleType, setVehicleType] = useLocalStorage<VehicleType>(STORAGE_KEYS.vehicleType, "car");
+  const [goal, setGoal] = useLocalStorage<Goal>(STORAGE_KEYS.goal, DEFAULT_GOAL);
+  const patchGoal = (patch: Partial<Goal>) => setGoal((g) => ({ ...g, ...patch }));
+  const [cityId, setCityId] = useLocalStorage<string>(STORAGE_KEYS.city, "bangkok");
+  const [driveMode, setDriveMode] = useLocalStorage<DriveMode>(STORAGE_KEYS.driveMode, "rides");
 
   const result = React.useMemo(() => calculateProfit(inputs, settings), [inputs, settings]);
   const symbol = (CURRENCIES[currency] ?? CURRENCIES[DEFAULT_CURRENCY]).symbol;
@@ -138,6 +152,24 @@ export function Dashboard() {
               <AnimatedNumber value={result.breakEvenKm} format={(n) => `${num(n, 0)} ${t("unit.km")}`} />
             </StatCard>
           </div>
+
+          <GoalCard
+            goal={goal}
+            onChangeGoal={patchGoal}
+            trips={trips}
+            todayNetLive={result.netProfit}
+            currency={currency}
+            symbol={symbol}
+          />
+        </section>
+
+        <section id="hotspots" className="scroll-mt-20">
+          <HotspotCard
+            cityId={cityId}
+            onChangeCity={setCityId}
+            mode={driveMode}
+            onChangeMode={setDriveMode}
+          />
         </section>
 
         <section id="vehicle" className="scroll-mt-20 grid gap-6 lg:grid-cols-2">
@@ -170,10 +202,17 @@ export function Dashboard() {
         <section id="analytics" className="scroll-mt-20 grid gap-6 lg:grid-cols-2">
           <ExpenseBreakdown result={result} currency={currency} fuelType={settings.fuelType} />
           <MonthlyProjection result={result} currency={currency} workingDays={settings.workingDaysPerMonth} />
+          <div className="lg:col-span-2">
+            <InsightsCard trips={trips} currency={currency} />
+          </div>
         </section>
 
         <section id="costs" className="scroll-mt-20">
           <CostSettingsCard value={settings} onChange={patchSettings} onReset={() => setSettings(defaultSettingsFor(vehicleType))} symbol={symbol} />
+        </section>
+
+        <section className="scroll-mt-20">
+          <DataCard />
         </section>
 
         <footer className="pt-2 text-center text-xs text-muted-foreground">{t("footer.note")}</footer>

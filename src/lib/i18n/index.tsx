@@ -18,6 +18,7 @@ type I18nValue = {
   money: (value: number, currencyCode?: string, decimals?: number) => string;
   num: (value: number, decimals?: number) => string;
   dateShort: (iso: string) => string;
+  weekdayShort: (dow: number) => string;
 };
 
 const I18nContext = React.createContext<I18nValue | null>(null);
@@ -90,7 +91,12 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
         year: "numeric",
       }).format(d);
     };
-    return { lang, setLang, t, money, num, dateShort };
+    const weekdayShort = (dow: number) => {
+      // 2023-01-01 is a Sunday; add dow days to reach the desired weekday.
+      const ref = new Date(Date.UTC(2023, 0, 1 + ((dow % 7) + 7) % 7));
+      return new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" }).format(ref);
+    };
+    return { lang, setLang, t, money, num, dateShort, weekdayShort };
   }, [lang, setLang]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
